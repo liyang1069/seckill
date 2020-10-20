@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property resource="common.properties"/>
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder charset="UTF-8">
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %c:%L][%X{invokeNo}] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="all" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${order.log.path}all.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${order.log.path}all.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <maxFileSize>1GB</maxFileSize>
+            <maxHistory>40</maxHistory>
+            <totalSizeCap>25GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %c:%L][%X{invokeNo}] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="all-error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${order.log.path}all-error.log</file>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${order.log.path}all-error.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <maxFileSize>1GB</maxFileSize>
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %c:%L][%X{invokeNo}] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="all-sql" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${order.log.path}all-sql.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${order.log.path}all-sql-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %c:%L][%X{invokeNo}] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="dao-monitor" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${order.log.path}dao-monitor.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${order.log.path}dao-monitor-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %c:%L][%X{invokeNo}] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.jd.jmi.global.order.soa.aop.DaoMonitorAspect" level="info" additivity="false">
+        <appender-ref ref="dao-monitor"/>
+    </logger>
+
+    <appender name="info-asyn" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="all"/>
+        <queueSize>512</queueSize>
+        <!--异步打印日志,此值设置为true,文件名和行号才能输出,否则是问号-->
+        <includeCallerData>true</includeCallerData>
+    </appender>
+
+    <appender name="error-asyn" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="all-error"/>
+        <queueSize>512</queueSize>
+        <!--异步打印日志,此值设置为true,文件名和行号才能输出,否则是问号-->
+        <includeCallerData>true</includeCallerData>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="info-asyn"/>
+        <appender-ref ref="error-asyn"/>
+    </root>
+
+    <logger name="org.springframework.beans.factory.xml">
+        <level value="all"/>
+    </logger>
+
+</configuration>
